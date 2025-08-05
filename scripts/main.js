@@ -1,109 +1,68 @@
-const vehicles = [
-    {
-        year: 2021,
-        make: 'Toyota',
-        model: 'RAV4',
-        price: '$28,995',
-        photo: 'https://placehold.co/1200x675?text=RAV4'
-    },
-    {
-        year: 2020,
-        make: 'Honda',
-        model: 'Civic',
-        price: '$19,495',
-        photo: 'https://placehold.co/1200x675?text=Civic'
-    },
-    {
-        year: 2019,
-        make: 'Ford',
-        model: 'Escape',
-        price: '$17,995',
-        photo: 'https://placehold.co/1200x675?text=Escape'
-    },
-    {
-        year: 2022,
-        make: 'Chevrolet',
-        model: 'Malibu',
-        price: '$24,995',
-        photo: 'https://placehold.co/1200x675?text=Malibu'
-    },
-    {
-        year: 2018,
-        make: 'Nissan',
-        model: 'Altima',
-        price: '$15,995',
-        photo: 'https://placehold.co/1200x675?text=Altima'
-    },
-    {
-        year: 2020,
-        make: 'Hyundai',
-        model: 'Elantra',
-        price: '$18,995',
-        photo: 'https://placehold.co/1200x675?text=Elantra'
-    },
-    {
-        year: 2021,
-        make: 'Kia',
-        model: 'Sportage',
-        price: '$22,995',
-        photo: 'https://placehold.co/1200x675?text=Sportage'
-    },
-    {
-        year: 2019,
-        make: 'Mazda',
-        model: 'CX-5',
-        price: '$20,995',
-        photo: 'https://placehold.co/1200x675?text=CX-5'
-    },
-    {
-        year: 2022,
-        make: 'Volkswagen',
-        model: 'Jetta',
-        price: '$23,495',
-        photo: 'https://placehold.co/1200x675?text=Jetta'
-    },
-    {
-        year: 2023,
-        make: 'Subaru',
-        model: 'Outback',
-        price: '$27,995',
-        photo: 'https://placehold.co/1200x675?text=Outback'
-    }
-];
-
 const carousel = document.getElementById('carousel');
-
-// Preload images
-vehicles.forEach(vehicle => {
-    const img = new Image();
-    img.src = vehicle.photo;
-});
-
-// Create DOM elements
-vehicles.forEach(vehicle => {
-    const div = document.createElement('div');
-    div.className = 'vehicle';
-    div.innerHTML = `
-        <img src='${vehicle.photo}' alt='${vehicle.make} ${vehicle.model}' class='vehicle-image'>
-        <div class='vehicle-info'>
-          ${vehicle.year} ${vehicle.make} ${vehicle.model}
-        </div>
-        <div class='price'>${vehicle.price}</div>
-    `;
-    carousel.appendChild(div);
-});
-
+let vehicles = [];
+let vehicleEls = [];
 let currentVehicleIndex = 0;
-const vehicleEls = document.querySelectorAll('.vehicle');
+
+(async function init() {
+    try {
+        vehicles = await fetchVehicles();
+        console.log('vehicles: ', vehicles);
+        if (!vehicles.length) {
+            throw new Error('No vehicles found.');
+        }
+
+        preloadImages(vehicles);
+        buildCarousel(vehicles);
+        vehicleEls = document.querySelectorAll('.vehicle');
+        startCarousel();
+    } catch (err) {
+        console.error('Failed to initialize carousel:', err);
+        showError('Failed to load inventory.');
+    }
+})();
+
+async function fetchVehicles() {
+    const url = 'https://argus.vicimus.com/tv/mym2G8X4g9/10';
+    const res = await fetch(url);
+    if (!res.ok) {
+        throw new Error(`API Error: ${res.status}`);
+    }
+
+    const raw = await res.json();
+    const data = Object.values(raw);
+
+    return Array.isArray(data) ? data : [];
+}
+
+function preloadImages(vehicles) {
+    for (const vehicle of vehicles) {
+        const img = new Image();
+        img.src = vehicle.photos[0];
+    }
+}
+
+function buildCarousel(vehicles) {
+    for (const vehicle of vehicles) {
+        const div = document.createElement('div');
+        div.className = 'vehicle';
+        div.innerHTML = `
+            <img src="${vehicle.photos[0]}" alt="${vehicle.make} ${vehicle.model}" class="vehicle-image">
+            <div class="vehicle-info">
+                ${vehicle.year ?? ''} ${vehicle.make ?? ''} ${vehicle.model ?? ''}
+            </div>
+            <div class="price">${vehicle.price ?? ''}</div>
+        `;
+        carousel.appendChild(div);
+    }
+}
 
 function showVehicle(index) {
     vehicleEls.forEach((el, i) => {
-        el.classList.toggle('active', i === index);
+        const isActive = i === index;
+        el.classList.toggle('active', isActive);
 
-        if (i === index) {
-            const img = el.querySelector('.vehicle-image');
-
-            // Restart animation
+        if (isActive) {
+            const img = el.querySelector('img');
             img.classList.remove('vehicle-image');
             void img.offsetWidth;
             img.classList.add('vehicle-image');
@@ -112,10 +71,19 @@ function showVehicle(index) {
 }
 
 function nextVehicle() {
-    currentVehicleIndex = (currentVehicleIndex + 1) % vehicles.length;
+    currentVehicleIndex = (currentVehicleIndex + 1) % vehicleEls.length;
     showVehicle(currentVehicleIndex);
 }
 
-// Initialize
-showVehicle(currentVehicleIndex);
-setInterval(nextVehicle, 5000);
+function startCarousel() {
+    showVehicle(currentVehicleIndex);
+    setInterval(nextVehicle, 5000);
+}
+
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'vehicle-error';
+    errorDiv.textContent = message;
+    carousel.innerHTML = '';
+    carousel.appendChild(errorDiv);
+}
