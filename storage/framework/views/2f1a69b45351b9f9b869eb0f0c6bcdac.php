@@ -2,6 +2,7 @@
     <div class="carousel" id="carousel"></div>
 
     <script>
+        const OEM_KEY = <?php echo json_encode($oemKey, 15, 512) ?>;
         const carousel = document.getElementById('carousel');
         let vehicles = [];
         let vehicleEls = [];
@@ -27,7 +28,8 @@
         })();
 
         async function fetchVehicles() {
-            const url = 'https://argus.vicimus.com/tv/mym2G8X4g9/10';
+            // const url = 'https://argus.vicimus.com/tv/mym2G8X4g9/10';
+            const url = `https://argus.vicimus.com/tv/${OEM_KEY}/10`;
             const res = await fetch(url);
             if (!res.ok) {
                 throw new Error(`API Error: ${res.status}`);
@@ -88,7 +90,11 @@
         function showError(message) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'vehicle-error';
-            errorDiv.textContent = message;
+
+            const errorText = document.createElement('div');
+            errorText.textContent = message;
+            errorDiv.appendChild(errorText);
+
             carousel.innerHTML = '';
             carousel.appendChild(errorDiv);
         }
