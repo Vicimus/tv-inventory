@@ -4,7 +4,9 @@
     <div class="carousel" id="carousel"></div>
 
     <script>
-        const OEM_KEY = @json($oemKey);
+        const OEM_KEY = @json($key);
+        const OEM_COLOR = @json($color);
+
         const carousel = document.getElementById('carousel');
         let vehicles = [];
         let vehicleEls = [];
@@ -58,7 +60,7 @@
             <div class="vehicle-info">
                 ${vehicle.year ?? ''} ${vehicle.make ?? ''} ${vehicle.model ?? ''}
             </div>
-            <div class="price">${vehicle.price ?? ''}</div>
+            <div class="price" style="color: ${OEM_COLOR}">${vehicle.price ?? ''}</div>
         `;
                 carousel.appendChild(div);
             }

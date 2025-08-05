@@ -2,7 +2,9 @@
     <div class="carousel" id="carousel"></div>
 
     <script>
-        const OEM_KEY = <?php echo json_encode($oemKey, 15, 512) ?>;
+        const OEM_KEY = <?php echo json_encode($key, 15, 512) ?>;
+        const OEM_COLOR = <?php echo json_encode($color, 15, 512) ?>;
+
         const carousel = document.getElementById('carousel');
         let vehicles = [];
         let vehicleEls = [];
@@ -28,7 +30,6 @@
         })();
 
         async function fetchVehicles() {
-            // const url = 'https://argus.vicimus.com/tv/mym2G8X4g9/10';
             const url = `https://argus.vicimus.com/tv/${OEM_KEY}/10`;
             const res = await fetch(url);
             if (!res.ok) {
@@ -57,7 +58,7 @@
             <div class="vehicle-info">
                 ${vehicle.year ?? ''} ${vehicle.make ?? ''} ${vehicle.model ?? ''}
             </div>
-            <div class="price">${vehicle.price ?? ''}</div>
+            <div class="price" style="color: ${OEM_COLOR}">${vehicle.price ?? ''}</div>
         `;
                 carousel.appendChild(div);
             }

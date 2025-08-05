@@ -6,12 +6,14 @@ class OemKeysController extends Controller
 {
     public function index(string $slug)
     {
-        $oemKey = config("oem.$slug") ?? null;
+        $key = config("oem.$slug.key") ?? null;
 
-        if (!$oemKey) {
+        if (!$key) {
             abort(404, 'OEM not found.');
         }
 
-        return view('carousel', compact('oemKey'));
+        $color = config("oem.$slug.color") ?? '#FFF';
+
+        return view('carousel', compact('key', 'color'));
     }
 }
