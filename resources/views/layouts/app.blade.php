@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Full Screen Vehicle Carousel</title>
-    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body>
 
-<div class="carousel" id="carousel"></div>
+@yield('carousel')
 
-<script src="scripts/main.js"></script>
 </body>
 </html>
